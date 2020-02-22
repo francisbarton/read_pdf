@@ -30,9 +30,28 @@ text2 <- text1 %>%
         str_split(., pattern = "JUNTA ELECTORAL DE ") %>% 
         modify_in(., 1, ~ tail(., -1)) %>% 
         map(., ~ str_split(.,
-                           pattern = ";(?=[:digit:]\\.\\s([:upper:]|\\s){2,})") %>% 
-              set_names(map(., 1)))
+                           pattern = ";(?=\\d{1,2}\\.\\s([:upper:]|\\s){2,})") %>% 
+              set_names(str_to_title(map(., 1))) %>% 
+              map(., ~ tail(., -1))
+            )
   )
 
-        # map(., ~ set_names(., nm = str_extract(., "^([:upper:]|\\s)+(?=[:digit:])"))) %>% 
-        # map(., ~ set_names(., nm = str_sub(., 1)))
+# test with Avila only first
+text2[[1]][[1]][["Avila"]] %>% 
+  map(., ~ str_split(., pattern = ";(?=\\d{1,2}\\.\\s)") %>% 
+        set_names(map(., 1) %>% 
+                    str_extract(., pattern = "(?<=\\d{1,2}\\.\\s)[:upper:].*")) %>% 
+        map(., ~ tail(., -1))
+      )
+
+
+text3 <- text2 %>% 
+  pluck(., 1, 1) %>% 
+  map(.,  ~ str_split(.,
+                      pattern = ";(?=\\d{1,2}\\.\\s)") %>% 
+        set_names(map(., 1) %>% 
+                    str_extract(., pattern = "(?<=\\d{1,2}\\.\\s)[:upper:].*")) %>% 
+        map(.,
+            ~ tail(., -1)))
+
+
