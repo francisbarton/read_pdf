@@ -32,22 +32,13 @@ text2 <- text1 %>%
         str_replace_all(., "^Suplente.*", "") %>% 
         str_c(., collapse = ";") %>% 
         str_split(., pattern = "JUNTA ELECTORAL DE ") %>% 
-        # modify_in(., 1, ~ tail(., -1)) %>% 
         map(., ~ tail(., -1) %>% 
-        str_split(.,
-                  pattern = ";(?=\\d{1,2}\\.\\s([:upper:]|\\s){2,})") %>% 
+              str_split(.,
+                        pattern = ";(?=\\d{1,2}\\.\\s([:upper:]|\\s){2,})") %>% 
               set_names(str_to_title(map(., 1))) %>% 
               map(., ~ tail(., -1))
-            )
+        )
   )
-
-# test with Avila only first
-text2[[1]][[1]][["Avila"]] %>% 
-  map(., ~ str_split(., pattern = ";(?=\\d{1,2}\\.\\s)") %>% 
-        set_names(map(., 1) %>% 
-                    str_extract(., pattern = "(?<=\\d{1,2}\\.\\s)[:upper:].*")) %>% 
-        map(., ~ tail(., -1))
-      )
 
 
 text3 <- text2 %>% 
@@ -63,11 +54,6 @@ text3 <- text2 %>%
                             ~ str_extract_all(.,
                                               pattern = "(?<=\\d{1,2}\\.\\s)[:alpha:]+.*"))))))
 
-# test with Avila only first
-text3[[1]][[1]][["Avila"]] %>% 
-  map_df(., c, .id = "political_group")
-
-
 text4 <- text3 %>% 
   map(., ~
         map(., ~ 
@@ -79,7 +65,10 @@ text5 <- text4 %>%
         map(., ~ 
               map_df(., c, .id = "territory")))
 
-
+# EXAMPLE
+# To look at just the data frame produced from the first web page supplied
+# (with columns rearranged as desired):
 data_frame1 <- text5 %>% 
   pluck(1, 1) %>% 
   select(person_name, everything())
+data_frame1
